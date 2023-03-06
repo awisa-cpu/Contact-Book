@@ -45,14 +45,34 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('C O N T A C T S'),
       ),
-      body: ListView.builder(
-        itemCount: contactBook.contactLength,
-        itemBuilder: (context, index) {
-          final Contact contact =
-              contactBook.retriveContact(contactIndex: index)!;
-          return ListTile(
-            title: Text(contact.name),
+      body: ValueListenableBuilder(
+        valueListenable: contactBook,
+        builder: (context, value, child) {
+          final contacts = value;
+          child = ListView.builder(
+            itemCount: contacts.length,
+            itemBuilder: (context, index) {
+              final Contact contact = contacts[index];
+              return Dismissible(
+                onDismissed: (direction) {
+                  ContactBook.singleton()
+                      .deleteFromContactList(contact: contact);
+                },
+                key: ValueKey(contact.id),
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: Material(
+                    color: Colors.white,
+                    elevation: 6.0,
+                    child: ListTile(
+                      title: Text(contact.name),
+                    ),
+                  ),
+                ),
+              );
+            },
           );
+          return child;
         },
       ),
       floatingActionButton: FloatingActionButton(
